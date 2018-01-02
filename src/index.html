@@ -10,6 +10,7 @@
         <link rel="stylesheet" type="text/css" href="static/css/main.css?v=10" />
     </head>
     <body>
+    <img src="static/img/icon-sdm1.png" style="height:0;overflow: hidden;" alt="">
     <input id="uploadInput" class="invisible" style="position:absolute;left:-999rem;" type="file" accept="image/*" />
         <div id="loadingSection" class="wrapper-inner loading-section" style="width: 100%; left: 0px; display: none;">
                 <div class="body">
@@ -28,7 +29,7 @@
             </div>
             <div id="resultSection" class="wrapper-inner result-section" >
 
-                <button  class="choose-btn">选择</button>
+                <button  class="choose-btn" style="display:block;height:36px;line-height:36px;border:none;border-radius: 30px;">选择</button>
 
             </div>
         <div id="cropSection" class="wrapper-inner crop-section">
@@ -73,7 +74,13 @@
                     <div class="confirm-btn">确定</div>
                 </div>
             </div>
+            <div id="saveSection" class="wrapper-inner save-section" style="background:red;display:none;">
+                <div class="share-img">
+                    <img id="shareImg" />
+                    <div class="save-tips">长按可保存头像</div>
+                </div>
 
+            </div>
 
             <br/>
 
@@ -160,64 +167,82 @@ function hatConfirm(evt) {
         var imgEncoder = new JPEGEncoder();
         dataURL = imgEncoder.encode(canvasCtx.getImageData(0, 0, canvasDom.width, canvasDom.height), 100, true);
     } else {
+        console.log("not isAndroid");
         dataURL = canvasDom.toDataURL("image/jpeg", 1);
+        // console.log(dataURL);
+
     }
     var dataComponent = dataURL.split(",");
-    if (dataComponent.length >= 2) {
-        var dataBase64 = dataComponent[1];
-        if (dataBase64.length > 0) {
-            $("#hatSection").data("result", dataBase64);
-            $("#hatStamp")[0].className = "hat-stamp-off";
-            if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
-                hatConfirmQZone();
-            } else {
-                hatConfirmOther();
-            }
-        }
-    }
-    pageRecordClick("sng.tu.christmas2015.confirmbtn");
+    $("#shareImg").attr("src", dataComponent);
+    $("#hatSection").data("result", dataComponent);
+    hatConfirmOther();
+    // if (dataComponent.length >= 2) {
+    //     console.log("dataComponent.length >= 2");
+    //     var dataBase64 = dataComponent[1];
+    //     if (dataBase64.length > 0) {
+    //         $("#hatSection").data("result", dataBase64);
+    //         $("#hatStamp")[0].className = "hat-stamp-off";
+    //         if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
+    //             hatConfirmQZone();
+    //         } else {
+    //             hatConfirmOther();
+    //         }
+    //     }
+    // }
     return preventEventPropagation(evt);
 }
 
 function hatConfirmOther() {
     // loadingStart("圣诞头像生成中");
     var imgData = $("#hatSection").data("result");
-    var uploadUrl = "http://h5.qzone.qq.com/q/tu/cgi/doStoreImageV5.php";
-    $.ajax({
-        url: uploadUrl,
-        type: "POST",
-        data: imgData,
-        dataType: "json",
-        timeout: 30000,
-        success: function (data, textStatus) {
-            if (data.ret == 0) {
-                $("#saveSection .retry-btn").data("cosid", data.id);
-                var photoImg = new Image();
-                photoImg.onload = function () {
-                    loadingStop();
-                    $("#shareImg").attr("src", data.url);
-                    if (window.isInWechat) {
-                        $("#saveSection .setupqz-tips").css("display", "none");
-                        $("#saveSection .setupwx-tips").css("display", "");
-                    } else if (window.isInMqzone || !window.supportTouch) {
-                        $("#saveSection .save-tips").css("display", "none");
-                        $("#saveSection .qzcache-tips").css("display", "");
-                    }
-                    $("#saveSection").css("display", "");
-                    $("#hatSection").css("display", "none");
-                    var shareUrl = window.baseUrl + "index.html?id=" + data.id;
-                    setShareParams(data.url, shareUrl);
-                }
-                photoImg.src = data.url;
-            } else {
-                alert("生成失败(" + data.ret + ")", true);
-                $("#hatStamp")[0].className = "hat-stamp-on";
-            }
-        }, error: function (req, errorType, error) {
-            alert("生成失败(" + errorType + ")", true);
-            $("#hatStamp")[0].className = "hat-stamp-on";
+    // var uploadUrl = "http://h5.qzone.qq.com/q/tu/cgi/doStoreImageV5.php";
+
+
+    // $("#shareImg").attr("src", imgData);
+
+    // $("#hatSection").css("display", "none");
+        var photoImg = new Image();
+        photoImg.onload = function () {
+            // $("#shareImg").attr("src", imgData);
+            $("#saveSection .setupwx-tips").css("display", "");
+            $("#saveSection").css("display", "");
         }
-    });
+        photoImg.src = imgData;
+    // $.ajax({
+    //     url: uploadUrl,
+    //     type: "POST",
+    //     data: imgData,
+    //     dataType: "json",
+    //     timeout: 30000,
+    //     success: function (data, textStatus) {
+    //         if (data.ret == 0) {
+    //             $("#saveSection .retry-btn").data("cosid", data.id);
+    //             var photoImg = new Image();
+    //             photoImg.onload = function () {
+    //                 loadingStop();
+    //                 $("#shareImg").attr("src", data.url);
+    //                 if (window.isInWechat) {
+    //                     $("#saveSection .setupqz-tips").css("display", "none");
+    //                     $("#saveSection .setupwx-tips").css("display", "");
+    //                 } else if (window.isInMqzone || !window.supportTouch) {
+    //                     $("#saveSection .save-tips").css("display", "none");
+    //                     $("#saveSection .qzcache-tips").css("display", "");
+    //                 }
+    //                 $("#saveSection").css("display", "");
+    //                 $("#hatSection").css("display", "none");
+    //                 var shareUrl = window.baseUrl + "index.html?id=" + data.id;
+    //                 setShareParams(data.url, shareUrl);
+    //             }
+    //             photoImg.src = data.url;
+    //         } else {
+    //             alert("生成失败(" + data.ret + ")", true);
+    //             $("#hatStamp")[0].className = "hat-stamp-on";
+    //         }
+    //     }, error: function (req, errorType, error) {
+    //         alert("生成失败(" + errorType + ")", true);
+    //         $("#hatStamp")[0].className = "hat-stamp-on";
+    //     }
+    // });
     return false;
 }
 
