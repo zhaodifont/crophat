@@ -6,8 +6,8 @@
         <title>一键圣诞帽</title>
         <meta name="description" itemprop="description" content="转发就会有小仙女给你戴上一顶圣诞帽哦~你们也来试试吧！" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <!-- <link rel="stylesheet" type="text/css" href="static/css/global.css" /> -->
-        <!-- <link rel="stylesheet" type="text/css" href="static/css/main.css?v=10" /> -->
+        <link rel="stylesheet" type="text/css" href="static/css/global.css" />
+        <link rel="stylesheet" type="text/css" href="static/css/main.css?v=10" />
     </head>
     <body>
     <input id="uploadInput" class="invisible" style="position:absolute;left:-999rem;" type="file" accept="image/*" />
@@ -27,11 +27,11 @@
                 </div>
             </div>
             <div id="resultSection" class="wrapper-inner result-section" >
-              
+
                 <button  class="choose-btn">选择</button>
-               
+
             </div>
-        <div id="cropSection" class="wrapper-inner crop-section" style="display:none;">
+        <div id="cropSection" class="wrapper-inner crop-section">
                 <div id="cropLayer" class="crop-layer">
                     <canvas style="position:absolute;left:-999rem;" id="cropCanvas" width="420" height="420"></canvas>
                     <img id="cropImg" style="display:none;" />
@@ -64,19 +64,19 @@
                 <div class="choose-hats">
                   <img id="sdm1" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_1.png" />
                   <img id="sdm2" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_2.png" />
-                  <img id="sdm3" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_3_2.png" />
-                  <img id="sdm4" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_4.png" />
-                  <img id="sdm5" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_5.png" />
+                  <!-- <img id="sdm3" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_3_2.png" /> -->
+                  <!-- <img id="sdm4" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_4.png" /> -->
+                  <!-- <img id="sdm5" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_5.png" /> -->
                 </div>
                 <div id="hatBar" class="hat-bar">
-                    <div class="move-tips">移动圣诞帽到恰当位置</div>
+                    <!-- <div class="move-tips">移动圣诞帽到恰当位置</div> -->
                     <div class="confirm-btn">确定</div>
                 </div>
             </div>
 
 
             <br/>
-        
+
         <!-- <div class="choose-hats">
           <img id="sdm1" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_1.png" style="">
           <img id="sdm2" onclick="javascript:chooseHat(this.id);" src="http://res.tu.qq.com/assets/opchristmas2015_img/sdm_2.png">
@@ -179,6 +179,48 @@ function hatConfirm(evt) {
     return preventEventPropagation(evt);
 }
 
+function hatConfirmOther() {
+    // loadingStart("圣诞头像生成中");
+    var imgData = $("#hatSection").data("result");
+    var uploadUrl = "http://h5.qzone.qq.com/q/tu/cgi/doStoreImageV5.php";
+    $.ajax({
+        url: uploadUrl,
+        type: "POST",
+        data: imgData,
+        dataType: "json",
+        timeout: 30000,
+        success: function (data, textStatus) {
+            if (data.ret == 0) {
+                $("#saveSection .retry-btn").data("cosid", data.id);
+                var photoImg = new Image();
+                photoImg.onload = function () {
+                    loadingStop();
+                    $("#shareImg").attr("src", data.url);
+                    if (window.isInWechat) {
+                        $("#saveSection .setupqz-tips").css("display", "none");
+                        $("#saveSection .setupwx-tips").css("display", "");
+                    } else if (window.isInMqzone || !window.supportTouch) {
+                        $("#saveSection .save-tips").css("display", "none");
+                        $("#saveSection .qzcache-tips").css("display", "");
+                    }
+                    $("#saveSection").css("display", "");
+                    $("#hatSection").css("display", "none");
+                    var shareUrl = window.baseUrl + "index.html?id=" + data.id;
+                    setShareParams(data.url, shareUrl);
+                }
+                photoImg.src = data.url;
+            } else {
+                alert("生成失败(" + data.ret + ")", true);
+                $("#hatStamp")[0].className = "hat-stamp-on";
+            }
+        }, error: function (req, errorType, error) {
+            alert("生成失败(" + errorType + ")", true);
+            $("#hatStamp")[0].className = "hat-stamp-on";
+        }
+    });
+    return false;
+}
+
 function hatTouchStart(evt) {
     var touches = evt.touches || evt.originalEvent.touches;
     var touch = touches[0];
@@ -231,7 +273,7 @@ function hatMouseUp(evt) {
 var hatMode = null;
 var hatOrigin = {};
 var hatFrom = {};
-           
+
 function indexCropChoose(evt) {
     cropChoose();
 }
@@ -246,50 +288,53 @@ function cropCropStart() {
 
 //  裁剪系列
 function cropChoose(evt) {
-    if (window.isInWechat) {
-        var wxHeadImgUrl = pageGetCookie("ttpt-wxheadimgurl");
-        if (wxHeadImgUrl) {
-            loadingStart("");
-            $.get("api/getHeadIcon.php?url=" + encodeURIComponent(wxHeadImgUrl), function (data, status, xhr) {
-                if (status == "success" && data.length > 0) {
-                    var photoImg = new Image();
-                    photoImg.onload = function () {
-                        cropLoaded(this);
-                    }
-                    photoImg.src = "data:image/jpeg;base64," + data;
-                } else {
-                    cropStart();
-                }
-            });
-        } else {
-            var wxState = pageGetParam("state");
-            if (wxState) {
-                cropStart();
-            } else {
-                authorizeByWechatRecirect();
-            }
-        }
-    } else if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
-        loadingStart("");
-        $.get("api/getHeadIcon.php", function (data, status, xhr) {
-            if (status == "success" && data.length > 0) {
-                var photoImg = new Image();
-                photoImg.onload = function () {
-                    cropLoaded(this);
-                }
-                photoImg.src = "data:image/jpeg;base64," + data;
-            } else {
-                cropStart();
-            }
-        });
-    } else {
-        cropStart();
-    }
+    cropStart();
+    // if (window.isInWechat) {
+    //     var wxHeadImgUrl = pageGetCookie("ttpt-wxheadimgurl");
+    //     if (wxHeadImgUrl) {
+    //         loadingStart("");
+    //         $.get("api/getHeadIcon.php?url=" + encodeURIComponent(wxHeadImgUrl), function (data, status, xhr) {
+    //             if (status == "success" && data.length > 0) {
+    //                 var photoImg = new Image();
+    //                 photoImg.onload = function () {
+    //                     cropLoaded(this);
+    //                 }
+    //                 photoImg.src = "data:image/jpeg;base64," + data;
+    //             } else {
+    //                 cropStart();
+    //             }
+    //         });
+    //     } else {
+    //         var wxState = pageGetParam("state");
+    //         if (wxState) {
+    //             cropStart();
+    //         } else {
+    //             // alert(0)
+    //             // authorizeByWechatRecirect();
+    //         }
+    //     }
+    // } else if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
+    //     loadingStart("");
+    //     $.get("api/getHeadIcon.php", function (data, status, xhr) {
+    //         if (status == "success" && data.length > 0) {
+    //             var photoImg = new Image();
+    //             photoImg.onload = function () {
+    //                 cropLoaded(this);
+    //             }
+    //             photoImg.src = "data:image/jpeg;base64," + data;
+    //         } else {
+    //             cropStart();
+    //         }
+    //     });
+    // } else {
+    //     cropStart();
+    // }
     return preventEventPropagation(evt);
 }
 
 // 第二页
 function cropLoaded(img) {
+    console.log("cropLoaded");
     var isSupportTouch = window.supportTouch;
     $("#cropSection").css("display", "");
     var $cropLayer = $("#cropLayer");
@@ -386,7 +431,7 @@ function cropChanged(evt) {
     return preventEventPropagation(evt);
 }
 
-//  
+//
 function cropConfirm(evt) {
     pageRecordClick("sng.tu.christmas2015.nextbtn");
     var canvasScale = canvasDom.height / $("#cropLayer").height();
@@ -531,7 +576,7 @@ function indexPageReady() {
     //     document.getElementById("qrcodeSection").style.display = "";
     //     return;
     // }
-    
+
     if (window.isInWechat) {
         $("#saveSection .share-btn").css("display", "none");
     }
@@ -666,13 +711,36 @@ console.log(44444);
 }
 
 var gHatId = "sdm1";
+function hatStart(imgData) {
+    $("#hatFace").attr("src", "data:image/jpeg;base64," + imgData);
+    $("#" + gHatId).css("border", "2px solid #f80051");
+    $("#hatStamp")[0].className = "hat-stamp-on";
+    $("#hatSection").css("display", "");
+    var $hatLayer = $("#hatLayer");
+    var hatSectionHeight = $("#hatSection").height();
+    var hatBarHeight = $("#hatBar").height();
+    var hatLayerHeight = $hatLayer.height();
+    var hatLayerOriginY = (hatSectionHeight - hatBarHeight - hatLayerHeight) * 0.01;
+    $hatLayer.css("top", [hatLayerOriginY * 100 / hatSectionHeight, "%"].join(""));
+    $("#hatMaskUp").css("height", [hatLayerOriginY * 100 / hatSectionHeight, "%"].join(""));
+    $("#hatMaskUp").css("top", 0);
+    $("#hatMaskUp").css("visibility", "visible");
+    $("#hatMaskDown").css("height", [hatLayerOriginY * 100 / hatSectionHeight, "%"].join(""));
+    $("#hatMaskDown").css("top", [(hatLayerOriginY + hatLayerHeight) * 100 / hatSectionHeight, "%"].join(""));
+    $("#hatMaskDown").css("visibility", "visible");
+    var hatSectionWidth = $("#hatSection").width();
+    var hatStampWidth = $("#hatStamp").width();
+    $("#hatStamp").css("left", [(hatSectionWidth - hatStampWidth) * 0.5, "px"].join(""));
+    $("#hatStamp").css("top", "0px");
+}
+
 function chooseHat(id) {
     // pageRecordClick("sng.tu.christmas2015." + id);
     $("#" + gHatId).css("border", "");
     if (id == "sdm1" || id == "sdm2") {
         $("#hatSection .choose-download").css("display", "none");
         $("#" + id).css("border", "2px solid #f80051");
-        $("#hatStamp .hat-icon").attr("src", "res/icon-" + id + ".png");
+        $("#hatStamp .hat-icon").attr("src", "static/img/icon-" + id + ".png");
     } else {
         $("#" + id).css("border", "2px solid #d0d0d0");
         if (id == "sdm4") {
