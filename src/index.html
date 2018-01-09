@@ -313,47 +313,51 @@ function cropCropStart() {
 
 //  裁剪系列
 function cropChoose(evt) {
-    cropStart();
-    // if (window.isInWechat) {
-    //     var wxHeadImgUrl = pageGetCookie("ttpt-wxheadimgurl");
-    //     if (wxHeadImgUrl) {
-    //         loadingStart("");
-    //         $.get("api/getHeadIcon.php?url=" + encodeURIComponent(wxHeadImgUrl), function (data, status, xhr) {
-    //             if (status == "success" && data.length > 0) {
-    //                 var photoImg = new Image();
-    //                 photoImg.onload = function () {
-    //                     cropLoaded(this);
-    //                 }
-    //                 photoImg.src = "data:image/jpeg;base64," + data;
-    //             } else {
-    //                 cropStart();
-    //             }
-    //         });
-    //     } else {
-    //         var wxState = pageGetParam("state");
-    //         if (wxState) {
-    //             cropStart();
-    //         } else {
-    //             // alert(0)
-    //             // authorizeByWechatRecirect();
-    //         }
-    //     }
-    // } else if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
-    //     loadingStart("");
-    //     $.get("api/getHeadIcon.php", function (data, status, xhr) {
-    //         if (status == "success" && data.length > 0) {
-    //             var photoImg = new Image();
-    //             photoImg.onload = function () {
-    //                 cropLoaded(this);
-    //             }
-    //             photoImg.src = "data:image/jpeg;base64," + data;
-    //         } else {
-    //             cropStart();
-    //         }
-    //     });
-    // } else {
-    //     cropStart();
-    // }
+    // cropStart();
+
+    if (window.isInWechat) {
+
+        var wxHeadImgUrl = pageGetCookie("ttpt-wxheadimgurl");
+        if (wxHeadImgUrl) {
+            loadingStart("");
+            $.get("api/getHeadIcon.php?url=" + encodeURIComponent(wxHeadImgUrl), function (data, status, xhr) {
+                if (status == "success" && data.length > 0) {
+                    var photoImg = new Image();
+                    photoImg.onload = function () {
+                        cropLoaded(this);
+                    }
+                    photoImg.src = "data:image/jpeg;base64," + data;
+                } else {
+                    cropStart();
+                }
+            });
+        } else {
+            var wxState = pageGetParam("state");
+            if (wxState) {
+                cropStart();
+            } else {
+                // alert(0)
+                // authorizeByWechatRecirect();
+            }
+        }
+    } else if ((window.isInMqzone || !window.supportTouch) && window.p_uin.length > 0 && window.p_skey.length > 0) {
+        console.log('23333');
+        loadingStart("");
+        $.get("api/getHeadIcon.php", function (data, status, xhr) {
+            if (status == "success" && data.length > 0) {
+                var photoImg = new Image();
+                photoImg.onload = function () {
+                    cropLoaded(this);
+                }
+                photoImg.src = "data:image/jpeg;base64," + data;
+            } else {
+                cropStart();
+            }
+        });
+    } else {
+
+        cropStart();
+    }
     return preventEventPropagation(evt);
 }
 

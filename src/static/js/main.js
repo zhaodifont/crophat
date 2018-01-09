@@ -38,22 +38,25 @@ var canvasDom;
 var canvasCtx;
 var cropGesture = null;
 
+// 点击 定制圣诞头像 $("#welcomeSection .choose-btn").on("click", indexCropChoose);
 function indexCropChoose(evt) {
-    pageRecordClick("sng.tu.christmas2015.indexupload");
+    // pageRecordClick("sng.tu.christmas2015.indexupload");
     cropChoose();
 }
 
 function resultCropChoose(evt) {
-    pageRecordClick("sng.tu.christmas2015.resultupload");
+    // pageRecordClick("sng.tu.christmas2015.resultupload");
     cropChoose();
 }
 
 function cropCropStart() {
-    pageRecordClick("sng.tu.christmas2015.cropupload");
+    // pageRecordClick("sng.tu.christmas2015.cropupload");
     cropStart();
 }
+
 //  裁剪系列
 function cropChoose(evt) {
+    // 从微信缓存中获取曾经上传过的照片
     if (window.isInWechat) {
         var wxHeadImgUrl = pageGetCookie("ttpt-wxheadimgurl");
         if (wxHeadImgUrl) {
@@ -131,6 +134,7 @@ function cropStop(evt) {
     return preventEventPropagation(evt);
 }
 
+// 当file有变动的时候
 function cropChanged(evt) {
     if (this.files.length <= 0) {
         cropStop();
@@ -142,25 +146,25 @@ function cropChanged(evt) {
     var reader = new FileReader();
     reader.onload = function () {
         var binary = this.result;
-        var binaryData = new BinaryFile(binary);
-        var imgExif = EXIF.readFromBinaryFile(binaryData);
+        var binaryData = new BinaryFile(binary); // 转为二进制
+        var imgExif = EXIF.readFromBinaryFile(binaryData); // 获取图像信息
         var fullScreenImg = new Image();
         fullScreenImg.onload = function () {
             cropLoaded(this);
             loadingStop();
         }
-        var mpImg = new MegaPixImage(file);
+        var mpImg = new MegaPixImage(file);  // 将传入的图片调整为合理的大小
         mpImg.render(fullScreenImg, {
             maxWidth: 960,
             maxHeight: 960,
-            orientation: imgExif.Orientation
+            orientation: imgExif.Orientation // 位置信息
         });
     }
     reader.readAsBinaryString(file);
     return preventEventPropagation(evt);
 }
 
-// 第二页
+// 第二页 设置图片在页面中的位置
 function cropLoaded(img) {
     var isSupportTouch = window.supportTouch;
     $("#cropSection").css("display", "");
@@ -201,9 +205,9 @@ function cropLoaded(img) {
     return false;
 }
 
-//  
+//  页面中手指滑动调整图片 松开时 不让图片跑偏
 function cropConfirm(evt) {
-    pageRecordClick("sng.tu.christmas2015.nextbtn");
+    // pageRecordClick("sng.tu.christmas2015.nextbtn");
     var canvasScale = canvasDom.height / $("#cropLayer").height();
     var $cropImg = $("#cropImg");
     var imgOrigin = {
@@ -647,7 +651,10 @@ function retryButtonPressed(evt) {
 
 function indexPageReady() {
     var cosid = pageGetParam("id");
+    // 关闭加载
     document.getElementById("loadingSection").style.display = "none";
+
+    // 非触屏 非webkit内核 则选择提示 手机扫码
     if (!window.supportTouch && !window.isWebkit) {
         var pageUrl = window.baseUrl + "index.html?id=" + cosid;
         var qrcodeUrl = "http://test.tu.qq.com/websites/qrcode.php?url=" + encodeURIComponent(pageUrl);
@@ -663,6 +670,8 @@ function indexPageReady() {
     var shouldSetDefaultShareParams = true;
     var wxState = pageGetParam("state");
     var wxHeadImgUrl = pageGetParam("wxheadimgurl") || pageGetCookie("ttpt-wxheadimgurl");
+    
+    // 如果是在微信里 并且有state参数 并且有缓存的cookie
     if (window.isInWechat && wxState && wxHeadImgUrl.length > 0) {
         loadingStart("");
         $.get("api/getHeadIcon.php?url=" + encodeURIComponent(wxHeadImgUrl), function (data, status, xhr) {
@@ -680,6 +689,7 @@ function indexPageReady() {
             }
         });
     } else {
+        // 貌似是可以显示上一个分享人设置的图片
         if (cosid.length > 0) {
             shouldSetDefaultShareParams = false;
             loadingStart("");
@@ -728,6 +738,8 @@ function indexPageReady() {
     window.setTimeout(function () {
         $("#welcomeSection .choose-btn").on("click", indexCropChoose);
         $("#resultSection .choose-btn").on("click", resultCropChoose);
+        
+        // 添加可以点击 移动 接触 效果
         cropGesture = new EZGesture($("#cropLayer")[0], $("#cropImg")[0], {
             targetMinWidth: 420,
             targetMinHeight: 420
