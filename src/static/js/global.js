@@ -12,9 +12,13 @@ function pageGetCookie(c_name){if(document.cookie.length>0){var mCookies=documen
 return"";}
 function pageSetCookie(c_name,c_value,c_domain){if(c_domain){document.cookie=c_name+"="+encodeURIComponent(c_value)+"; domain="+c_domain+"; path=/";}else{document.cookie=c_name+"="+encodeURIComponent(c_value);}}
 function pageLoadScript(filepath,onloadCallback){var scriptDom=document.createElement("script");scriptDom.onload=scriptDom.onreadystatechange=onloadCallback;scriptDom.type="text/javascript";scriptDom.src=filepath;document.body.appendChild(scriptDom);}
-function pageRecordPV(vUrl){if(!vUrl){vUrl=location.pathname;}
-if(typeof(pgvMain)=='function'){pgvMain({virtualDomain:"tu.qq.com",virtualURL:vUrl});}else{pageLoadScript("http://pingjs.qq.com/tcss.ping.js",function(){if(typeof(pgvMain)=='function'){pgvMain({virtualDomain:"tu.qq.com",virtualURL:vUrl});}});}}
-function pageRecordClick(hottag){if(typeof(pgvSendClick)=='function'){pgvSendClick({virtualDomain:"tu.qq.com",hottag:hottag});}else{pageLoadScript("http://pingjs.qq.com/tcss.ping.js",function(){if(typeof(pgvSendClick)=='function'){pgvSendClick({virtualDomain:"tu.qq.com",hottag:hottag});}});}}
+function pageRecordPV(vUrl){
+//     if(!vUrl){vUrl=location.pathname;}
+// if(typeof(pgvMain)=='function'){pgvMain({virtualDomain:"tu.qq.com",virtualURL:vUrl});}else{pageLoadScript("http://pingjs.qq.com/tcss.ping.js",function(){if(typeof(pgvMain)=='function'){pgvMain({virtualDomain:"tu.qq.com",virtualURL:vUrl});}});}
+}
+function pageRecordClick(hottag){
+    // if(typeof(pgvSendClick)=='function'){pgvSendClick({virtualDomain:"tu.qq.com",hottag:hottag});}else{pageLoadScript("http://pingjs.qq.com/tcss.ping.js",function(){if(typeof(pgvSendClick)=='function'){pgvSendClick({virtualDomain:"tu.qq.com",hottag:hottag});}});}
+}
 function preventEventPropagation(evt){var e=evt||window.event;if(e){e.preventDefault();e.stopPropagation();}
 return false;}
 function authorizeByPtlogin(){var logoUrl=encodeURIComponent(window.baseUrl+'res/logo.png');var redirectUrl=encodeURIComponent(window.baseUrl+"ptCallback.php");var authUrl=["http://ui.ptlogin2.qq.com/cgi-bin/login?style=8&appid=549000930&hln_css=",logoUrl,"&s_url=",redirectUrl].join("");location.href=authUrl;}
