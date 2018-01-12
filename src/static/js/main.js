@@ -326,7 +326,7 @@ function hatConfirm(evt) {
             }
         }
     }
-    pageRecordClick("sng.tu.christmas2015.confirmbtn");
+    // pageRecordClick("sng.tu.christmas2015.confirmbtn");
     return preventEventPropagation(evt);
 }
 
@@ -781,7 +781,7 @@ function indexPageReady() {
         $("#saveSection .share-btn").on("click", sharePageByPlatform);
         $("#saveSection .retry-btn").on("click", retryButtonPressed);
         $("#saveSection .download-btn").on("click", function () {
-            pageRecordClick("sng.tu.christmas2015.downloadbtn");
+            // pageRecordClick("sng.tu.christmas2015.downloadbtn");
             window.location = "http://tu.qq.com/downloading.php?by=58";
         });
         $("#shareSection").on("click", function () {
