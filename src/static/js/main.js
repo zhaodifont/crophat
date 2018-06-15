@@ -670,7 +670,7 @@ function indexPageReady() {
     var shouldSetDefaultShareParams = true;
     var wxState = pageGetParam("state");
     var wxHeadImgUrl = pageGetParam("wxheadimgurl") || pageGetCookie("ttpt-wxheadimgurl");
-    
+
     // 如果是在微信里 并且有state参数 并且有缓存的cookie
     if (window.isInWechat && wxState && wxHeadImgUrl.length > 0) {
         loadingStart("");
@@ -738,7 +738,7 @@ function indexPageReady() {
     window.setTimeout(function () {
         $("#welcomeSection .choose-btn").on("click", indexCropChoose);
         $("#resultSection .choose-btn").on("click", resultCropChoose);
-        
+
         // 让目标 arg2 在 容器 arg1 中 可以滑动 缩放的区域 arg3
         cropGesture = new EZGesture($("#cropLayer")[0], $("#cropImg")[0], {
             targetMinWidth: 420,
@@ -751,7 +751,7 @@ function indexPageReady() {
         cropGesture.targetMinHeight = canvasDom.height;
         $("#cropSection").css("visibility", "hidden");
         $("#cropSection").css("display", "");
-        
+
         var cropLayerHeight = ($("#cropSection").width() * canvasDom.height * 100 / (canvasDom.width * $("#cropSection").height())).toFixed(2);
         $("#cropLayer").css("height", [cropLayerHeight, "%"].join(""));
         $("#cropSection").css("display", "none");
